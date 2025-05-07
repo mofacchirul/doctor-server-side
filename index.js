@@ -3,7 +3,7 @@ require("dotenv").config();
 const app = express();
 const cors = require("cors");
 const port = process.env.PORT || 5000;
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -28,6 +28,7 @@ async function run() {
   try {
     await client.connect();
     const All_doctor = client.db("Doctor").collection("All_Doctor");
+    const Appointment_collections = client.db("Doctor").collection("Appointment");
 
     app.get("/alldoctor", async (req, res) => {
       const result = await All_doctor.find().toArray();
@@ -39,6 +40,20 @@ async function run() {
       const result = await All_doctor.findOne(query);
       res.send(result)
     })
+
+
+    app.post("/Appointment ", async (req, res) => {
+      const data = req.body;
+      const result = await Appointment_collections.insertOne(data);
+      res.send(result);
+    });
+
+
+
+
+
+
+
 
     console.log("Connected to MongoDB!");
   } catch (error) {
