@@ -26,6 +26,15 @@ async function run() {
     await client.connect();
     const All_doctor = client.db("Doctor").collection("All_Doctor");
     const Appointment_collections = client.db("Doctor").collection("Appointment");
+    const user_collections = client.db("Doctor").collection("user");
+    const blog_collections = client.db("Doctor").collection("blog");
+  
+    app.post("/alldoctor",async(req,res)=>{
+      const data = req.body;
+      const result = await All_doctor.insertOne(data);
+      res.send(result)
+    })
+
 
     app.get("/alldoctor", async (req, res) => {
       const result = await All_doctor.find().toArray();
@@ -39,7 +48,9 @@ async function run() {
       res.send(result);
     });
 
-    // ✅ Fixed route
+           
+    //  appointment 
+
     app.post("/appointment", async (req, res) => {
       const data = req.body;
       const result = await Appointment_collections.insertOne(data);
@@ -63,6 +74,50 @@ async function run() {
       const result =await Appointment_collections.deleteOne(query);
       res.send(result)
     })
+
+
+
+      //  user
+      app.post('/user',async(req,res)=>{
+        const data= req.body;
+        const result = await user_collections.insertOne(data)
+        res.send(result)
+      })
+        
+      app.get("/user", async (req, res) => {
+        const result = await user_collections.find().toArray();
+        res.send(result);
+      });
+
+      app.delete('/user/:id',async(req,res)=>{
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)};
+        const result =await user_collections.deleteOne(query);
+        res.send(result)
+      })
+
+
+
+
+
+
+
+// blog
+app.post('/blog',async(req,res)=>{
+  const data= req.body;
+  const result = await blog_collections.insertOne(data)
+  res.send(result)
+})
+  
+
+app.get("/blog", async (req, res) => {
+  const result = await blog_collections.find().toArray();
+  res.send(result);
+});
+
+
+
+
 
 
 
