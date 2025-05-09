@@ -127,15 +127,35 @@ app.post('/create-checkout-session', async (req, res) => {
 })
 
 
-app.post('/payment',async(req,res)=>{
-  const data= req.body;
-  const result = await payment_collections.insertOne(data)
-  const query = {_id :{
-    $in: payment.appointmentIds.map(id =>new ObjectId(id))
-  }}
-  const deleteresult = await payment_collections.deleteMany(query)
-  res.send({result,deleteresult})
+app.post('/payment', async (req, res) => {
+  const data = req.body;
+  const result = await payment_collections.insertOne(data);
+
+  const query = {
+    _id: {
+      $in: data.appointmentIds.map(id => new ObjectId(id))
+    }
+  };
+
+  const deleteresult = await Appointment_collections.deleteMany(query);
+  res.send({ result, deleteresult });
+});
+
+
+
+app.get('/payment',async(req,res)=>{
+  const email = req.query.email;
+  const query= {email:email}
+  const result = await payment_collections.find(query).toArray();
+    res.send(result);
 })
+
+
+
+
+
+
+
 
     console.log("Connected to MongoDB!");
   } catch (error) {
