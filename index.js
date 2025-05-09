@@ -3,7 +3,7 @@ require("dotenv").config();
 const app = express();
 const cors = require("cors");
 const port = process.env.PORT || 5000;
-
+const stripe = require('stripe')(process.env.STRIPE_KEY)
 app.use(cors({
   origin: "http://localhost:5173",
   credentials: true
@@ -97,11 +97,6 @@ async function run() {
       })
 
 
-
-
-
-
-
 // blog
 app.post('/blog',async(req,res)=>{
   const data= req.body;
@@ -117,7 +112,16 @@ app.get("/blog", async (req, res) => {
 
 
 
-
+app.post('/create-checkout-session', async (req, res) => {
+  const {price}=req.body;
+  const amount = parseInt(price*100);
+  const session = await stripe.checkout.sessions.create({
+      amount:amount,
+      currency:"usd",
+      payment_method_types:['card']
+  })
+  res.send({clientSecret:session.client_secret})
+})
 
 
 
