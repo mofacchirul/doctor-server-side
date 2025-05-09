@@ -115,12 +115,14 @@ app.get("/blog", async (req, res) => {
 app.post('/create-checkout-session', async (req, res) => {
   const {price}=req.body;
   const amount = parseInt(price*100);
-  const session = await stripe.checkout.sessions.create({
+  console.log(amount);
+  
+  const paymentIntent = await stripe.paymentIntents.create({
       amount:amount,
       currency:"usd",
       payment_method_types:['card']
   })
-  res.send({clientSecret:session.client_secret})
+  res.send({clientSecret:paymentIntent.client_secret})
 })
 
 
