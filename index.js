@@ -28,6 +28,7 @@ async function run() {
     const Appointment_collections = client.db("Doctor").collection("Appointment");
     const user_collections = client.db("Doctor").collection("user");
     const blog_collections = client.db("Doctor").collection("blog");
+    const payment_collections = client.db("Doctor").collection("payment");
   
     app.post("/alldoctor",async(req,res)=>{
       const data = req.body;
@@ -126,7 +127,15 @@ app.post('/create-checkout-session', async (req, res) => {
 })
 
 
-
+app.post('/payment',async(req,res)=>{
+  const data= req.body;
+  const result = await payment_collections.insertOne(data)
+  const query = {_id :{
+    $in: payment.appointmentIds.map(id =>new ObjectId(id))
+  }}
+  const deleteresult = await payment_collections.deleteMany(query)
+  res.send({result,deleteresult})
+})
 
     console.log("Connected to MongoDB!");
   } catch (error) {
