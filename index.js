@@ -2,6 +2,7 @@ const express = require("express");
 require("dotenv").config();
 const app = express();
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 5000;
 const stripe = require('stripe')(process.env.STRIPE_KEY)
 app.use(cors({
@@ -96,7 +97,26 @@ async function run() {
         const result =await user_collections.deleteOne(query);
         res.send(result)
       })
+       app.get("/user/:id", async (req, res) => {
+      const email = req.decoded?.email; 
+      if (!email) {
+        return res.status(401).send({ message: "Unauthorized" });
+      }
+      const user = await user_collections.findOne({ email });
+      res.send({ admin: user?.role === "admin" });
+    });
 
+      app.patch('/user/:id',async(req,res)=>{
+        const id = req.params.id;
+        const filter = {_id:new ObjectId(id)};
+        const updateDoc = {
+          $set:{
+            role:'admin'
+          }
+        }
+        const result = await user_collections.updateOne(filter,updateDoc)
+        res.send(result)
+      })
 
 // blog
 app.post('/blog',async(req,res)=>{
@@ -149,6 +169,31 @@ app.get('/payment',async(req,res)=>{
   const result = await payment_collections.find(query).toArray();
     res.send(result);
 })
+
+
+app.get("/admin-stats",async(req,res)=>{
+  const user = await user_collections.estimatedDocumentCount();
+  const doctors= await All_doctor.estimatedDocumentCount()
+  const blog= await blog_collections.estimatedDocumentCount();
+  const appointment = await Appointment_collections.estimatedDocumentCount();
+  const payments = await payment_collections.aggregate([
+    {
+      $group:{
+        _id:null,
+        totalRevenue:{
+          $sum:'$price'
+        }
+      }
+    }
+  ]).toArray()
+  const revenue= payments.length > 0 ? payments[0].totalRevenue: 0;
+  res.send({user,doctors,blog,appointment,revenue})
+})
+
+
+
+
+
 
 
 
