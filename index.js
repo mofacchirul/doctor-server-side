@@ -1,5 +1,5 @@
-const express = require("express");
 require("dotenv").config();
+const express = require("express");
 const app = express();
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
@@ -7,7 +7,12 @@ const port = process.env.PORT || 5000;
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin:[
+      "http://localhost:5173",
+      "https://doctors-f203b.firebaseapp.com",
+      "https://doctors-f203b.web.app"
+      
+    ] ,
     credentials: true,
   })
 );
@@ -26,7 +31,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    
     const All_doctor = client.db("Doctor").collection("All_Doctor");
     const Appointment_collections = client
       .db("Doctor")
